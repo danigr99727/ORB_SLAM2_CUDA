@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 2.8)
 project(ORB_SLAM2_CUDA)
 
-IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Release)
-ENDIF()
+set(CMAKE_INSTALL_PREFIX /root/ORB_SLAM2_CUDA/install)
+
+
+#IF(NOT CMAKE_BUILD_TYPE)
+#  SET(CMAKE_BUILD_TYPE Release)
+#ENDIF()
+
+SET (CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda-10.1)
+SET (CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES /usr/local/cuda-10.1/include)
 
 MESSAGE(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 
@@ -13,13 +19,13 @@ set(CMAKE_CXX_FLAGS_DEBUG "-O2 -g")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-LIST(APPEND CMAKE_C_FLAGS "-Wall -Wextra -DUSE_NVTX")
-LIST(APPEND CMAKE_CXX_FLAGS "-Wall -Wextra -DUSE_NVTX")
+#LIST(APPEND CMAKE_C_FLAGS "-Wall -Wextra -DUSE_NVTX")
+#LIST(APPEND CMAKE_CXX_FLAGS "-Wall -Wextra -DUSE_NVTX")
 
 find_package(CUDA QUIET REQUIRED)
 set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 SET(CUDA_HOST_COMPILER /usr/bin/g++)
-LIST(APPEND CUDA_NVCC_FLAGS "--compiler-options -fno-strict-aliasing -use_fast_math")
+LIST(APPEND CUDA_NVCC_FLAGS "--compiler-options -fno-strict-aliasing -use_fast_math -gencode arch=compute_61,code=sm_61")
 
 # Check C++11 or C++0x support
 include(CheckCXXCompilerFlag)
@@ -41,7 +47,8 @@ endif()
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
-find_package(OpenCV 3.2.0 REQUIRED)
+
+find_package(OpenCV 4.2.0 REQUIRED PATHS "/root/opencv-4.2.0/opencv-4.2.0/install")
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
 
@@ -56,8 +63,10 @@ ${Pangolin_INCLUDE_DIRS}
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
+message(STATUS "CUDA TOOLKIT DIR: ${CUDA_TOOLKIT_ROOT_DIR}")
+
 cuda_include_directories(
-  ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc
+  /usr/local/cuda/cuda-samples/Common
 )
 
 cuda_add_library(${PROJECT_NAME} SHARED
@@ -85,6 +94,10 @@ src/cuda/Fast_gpu.cu
 src/cuda/Orb_gpu.cu
 src/cuda/Cuda.cu
 )
+
+install(TARGETS ${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}
+        )
 
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
