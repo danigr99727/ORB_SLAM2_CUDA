@@ -66,7 +66,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 message(STATUS "CUDA TOOLKIT DIR: ${CUDA_TOOLKIT_ROOT_DIR}")
 
 cuda_include_directories(
-  /usr/local/cuda/cuda-samples/Common
+	${CMAKE_CURRENT_SOURCE_DIR}/../cuda-samples/Common
 )
 
 cuda_add_library(${PROJECT_NAME} SHARED
